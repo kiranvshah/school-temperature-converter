@@ -44,6 +44,12 @@ class TemperatureConverter(tk.Frame):
         # place widgets in frame
         self.place_widgets()
 
+        # update when inputs change
+        self.temp_input.bind('<KeyRelease>', lambda _: self.run_convert_temp())
+        self.original_unit_input.bind('<<ComboboxSelected>>', lambda _: self.run_convert_temp())
+        self.destination_unit_input.bind('<<ComboboxSelected>>', lambda _: self.run_convert_temp())
+
+
     def place_widgets(self):
         padding = {
             'padx': 5,
