@@ -1,8 +1,23 @@
 import tkinter as tk
 from tkinter import ttk, font as tk_font
+from convert import convert_temp
 
 
 UNITS = ['°C', '°F', 'K', '°R']
+
+
+def switch_unit(unit):
+    match unit:
+        case '°C':
+            return 'celsius'
+        case '°F':
+            return 'fahrenheit'
+        case 'K':
+            return 'kelvin'
+        case '°R':
+            return 'rankine'
+        case _:
+            return 'invalid'
 
 
 class TemperatureConverter(tk.Frame):
@@ -23,7 +38,7 @@ class TemperatureConverter(tk.Frame):
         self.destination_unit_input = ttk.Combobox(self, values=UNITS, width=5, font=default_font)
         self.destination_unit_input.current(1)  # set to F by default
         # row 2
-        self.convert_btn = tk.Button(self, text='Convert')
+        self.convert_btn = tk.Button(self, text='Convert', command=self.run_convert_temp)
         self.result_label = tk.Label(self, text='')
 
         # place widgets in frame
@@ -39,8 +54,43 @@ class TemperatureConverter(tk.Frame):
         self.original_unit_input.grid(row=0, column=2, sticky=tk.W, **padding)
         self.convert_to_label.grid(row=1, column=0, sticky=tk.E, **padding)
         self.destination_unit_input.grid(row=1, column=1, sticky=tk.W, **padding)
-        self.convert_btn.grid(row=2, column=0, **padding)
-        self.result_label.grid(row=2, column=1, columnspan=2, sticky=tk.W)
+        self.convert_btn.grid(row=2, column=0, sticky=tk.W, **padding)
+        self.result_label.grid(row=2, column=1, columnspan=2, sticky=tk.W, **padding)
+
+    def run_convert_temp(self):
+        original_temp_str = self.temp_input.get()
+        original_unit = switch_unit(self.original_unit_input.get())
+        destination_unit = switch_unit(self.destination_unit_input.get())
+
+        original_temp = 0.0
+        result = ''
+        success = False
+        valid_temp = True
+
+        try:
+            original_temp = float(original_temp_str)
+        except ValueError:
+            result = 'Invalid temperature'
+            valid_temp = False
+
+        if original_temp_str == '':
+            valid_temp = True
+            result = ''
+
+        if valid_temp:
+            if original_unit == 'invalid':
+                result = 'Invalid input unit'
+            elif destination_unit == 'invalid':
+                result = 'Invalid output unit'
+            elif original_temp_str == '':
+                result = ''
+            else:
+                destination_temp = convert_temp(original_temp, original_unit, destination_unit)
+                result = f'Temperature: {destination_temp:.2f} {self.destination_unit_input.get()}'
+                success = True
+
+        # set result_label text to result
+        self.result_label.config(text=result, fg='black' if success else 'red')
 
 
 if __name__ == '__main__':
