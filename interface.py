@@ -46,6 +46,9 @@ class TemperatureConverter(tk.Frame):
         self.original_unit_input.bind('<<ComboboxSelected>>', self.run_convert_temp)
         self.destination_unit_input.bind('<<ComboboxSelected>>', self.run_convert_temp)
 
+        # update on start
+        self.run_convert_temp()
+
     def place_widgets(self):
         padding = {
             'padx': 5,
@@ -58,15 +61,15 @@ class TemperatureConverter(tk.Frame):
         self.destination_unit_input.grid(row=1, column=1, sticky=tk.W, **padding)
         self.result_label.grid(row=2, column=0, columnspan=2, sticky=tk.W, **padding)
 
-    def run_convert_temp(self, _):
+    def run_convert_temp(self, _=None):
         original_temp_str = self.temp_input.get()
         original_unit = switch_unit(self.original_unit_input.get())
         destination_unit = switch_unit(self.destination_unit_input.get())
 
         original_temp = 0.0
-        result = ''
-        success = False
-        valid_temp = True
+        result = ''  # text to output in label
+        success = False  # false if result text should be red
+        valid_temp = True  # true if conversion should be calculated
 
         try:
             original_temp = float(original_temp_str)
@@ -75,8 +78,9 @@ class TemperatureConverter(tk.Frame):
             valid_temp = False
 
         if original_temp_str == '':
-            valid_temp = True
-            result = ''
+            valid_temp = False
+            success = True
+            result = 'Waiting for temperature...'
 
         if valid_temp:
             destination_temp = convert_temp(original_temp, original_unit, destination_unit)
